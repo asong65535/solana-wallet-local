@@ -9,7 +9,7 @@ export default function Balance() {
   useEffect(() => {
     async function fetchBalance() {
       try {
-        const response = await fetch("http://localhost:3001/balance");
+        const response = await fetch("http://192.168.0.160:49271/balance");
         const data = await response.json();
         setBalance(data.balance);
       } catch (err) {
