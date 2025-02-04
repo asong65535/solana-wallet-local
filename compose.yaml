@@ -11,6 +11,8 @@ services:
     build: ./frontend
     ports:
       - "37246:3000"
+    environment:
+      - NODE_ENV=production
     depends_on:
       - backend
     restart: unless-stopped
