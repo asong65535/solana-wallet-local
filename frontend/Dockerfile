@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy package.json and install dependencies
 COPY package.json package-lock.json ./
-RUN npm install --omit=dev
+RUN npm install
 
 # Copy source code and build Next.js app
 COPY . .
@@ -17,7 +17,10 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copy built files
-COPY --from=builder /app ./
+COPY --from=builder /app/package.json /app/package-lock.json /app/.next /app/public /app/
+
+# Install only production dependencies
+RUN npm install --only=production
 
 # Expose Next.js port
 EXPOSE 3000
