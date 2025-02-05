@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: solana-wallet-local-backend
     build: ./backend
     ports:
       - "49271:3001"
@@ -8,6 +9,8 @@ services:
     restart: unless-stopped
 
   frontend:
+    container_name: solana-wallet-local-frontend
+    network_mode: "service:gluetun-mx"
     build: ./frontend
     ports:
       - "37246:3000"
@@ -15,4 +18,5 @@ services:
       - NODE_ENV=production
     depends_on:
       - backend
+      - gluetun-mx
     restart: unless-stopped
