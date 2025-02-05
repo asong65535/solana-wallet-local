@@ -30,7 +30,7 @@ async function fetchBalance() {
 }
 
 // WebSocket client connection to Binance (using `ws` package)
-const binanceWS = new ws("wss://stream.binance.com:9443/ws/solusdt@kline_1s");
+const binanceWS = new ws("wss://data-stream.binance.vision/ws/solusdt@kline_1s");
 
 binanceWS.on("message", (event) => {
   try {
