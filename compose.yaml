@@ -12,8 +12,6 @@ services:
     container_name: solana-wallet-local-frontend
     network_mode: "service:gluetun-mx"
     build: ./frontend
-    ports:
-      - "37246:3000"
     environment:
       - NODE_ENV=production
     depends_on:
