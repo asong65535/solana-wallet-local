@@ -29,17 +29,17 @@ export default function Balance() {
 
   return (
       <div className="p-4 border rounded shadow">
-        <h2 className="text-slate-600 text-xl font-bold">
+        <h2 className="text-slate-300 text-3xl font-bold">
           Solana Wallet Balance
         </h2>
         {error ? (
-            <p className="text-red-500">{error}</p>
+            <p className="text-red-500 text-2xl text-center">{error}</p>
         ) : (
             <>
-              <p className="text-green-500">
+              <p className="text-green-500 text-2xl text-center">
                 {balance !== null ? `${balance} SOL` : "Fetching balance..."}
               </p>
-              <p className="text-green-500">
+              <p className="text-green-500 text-2xl text-center">
                 {price !== null && balance !== null
                     ? `${Math.trunc(price * balance * 100) / 100} USD`
                     : "Fetching price..."}
