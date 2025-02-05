@@ -8,8 +8,8 @@ export default function Balance() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    //const ws = new WebSocket("ws://192.168.0.160:3001");
-    const ws = new WebSocket("ws://localhost:3001");
+    const ws = new WebSocket("ws://192.168.0.160:44271");
+    //const ws = new WebSocket("ws://localhost:3001");
 
     ws.onmessage = (event) => {
       try {
