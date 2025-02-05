@@ -30,18 +30,16 @@ async function fetchBalance() {
 }
 
 // WebSocket client connection to Binance (using `ws` package)
-const binanceWS = new ws("wss://stream.binance.com:9443/ws/solusdt@kline_1m");
+const binanceWS = new ws("wss://stream.binance.com:9443/ws/solusdt@kline_1s");
 
 binanceWS.on("message", (event) => {
   try {
     const data = JSON.parse(event);
     const open = parseFloat(data.k.o);
     const close = parseFloat(data.k.c);
-    const high = parseFloat(data.k.h);
-    const low = parseFloat(data.k.l);
 
     // Calculate average price (no rounding)
-    latestPrice = Math.trunc(((open + close + high + low) / 4) * 100) / 100;
+    latestPrice = Math.trunc(((open + close) / 2) * 100) / 100;
     console.log("Updated Price:", latestPrice);
   } catch (error) {
     console.error("Error parsing WebSocket data:", error);
@@ -53,7 +51,7 @@ setInterval(async () => {
   await fetchBalance(); // Refresh balance every minute
   const data = JSON.stringify({ balance: latestBalance, price: latestPrice });
   wss.clients.forEach(client => client.readyState === 1 && client.send(data));
-}, 5000); // Update every 60 seconds
+}, 1000); // Update every second
 
 // Handle WebSocket connections from frontend
 wss.on("connection", (ws) => {
