@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from "react";
 
+import useWebSocket from "@/components/priceWebSocket";
+
 export default function Balance() {
   const [balance, setBalance] = useState(null);
   const [error, setError] = useState(null);
+
+  const price = useWebSocket();
 
   useEffect(() => {
     async function fetchBalance() {
@@ -28,9 +32,14 @@ export default function Balance() {
       {error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <p className="text-green-500">
-          {balance !== null ? `${balance} SOL` : "Fetching balance..."}
-        </p>
+          <>
+            <p className="text-green-500">
+              {balance !== null ? `${balance} SOL` : "Fetching balance..."}
+            </p>
+            <p className="text-green-500">
+              {`${Math.trunc(price * balance * 100) / 100} USD`}
+            </p>
+          </>
       )}
     </div>
   );
