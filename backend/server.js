@@ -1,20 +1,66 @@
 import express from "express";
+import { WebSocketServer } from "ws";
 import cors from "cors";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 
 const app = express();
 app.use(cors()); // Allow frontend requests
 
+const server = app.listen(3001, () => console.log("Server running on port 3001"));
+
+// WebSocket server setup
+const wss = new WebSocketServer({ server });
+
+let latestPrice = null;
+let latestBalance = null;
+
+// Solana wallet connection
 const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
 const publicKey = new PublicKey("GnmB9DGN28r38xQVBjDoJ8N5xaznAEL5dmZ9RVRjysCD");
 
-app.get("/balance", async (req, res) => {
+// Function to fetch wallet balance
+async function fetchBalance() {
   try {
     const balance = await connection.getBalance(publicKey);
-    res.json({ balance: balance / 1e9 }); // Convert lamports to SOL
+    latestBalance = balance / 1e9; // Convert lamports to SOL
+    console.log("Updated Balance:", latestBalance);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch balance" });
+    console.error("Error fetching balance:", error);
   }
-});
+}
 
-app.listen(3001, () => console.log("Server running on port 3001"));
+// WebSocket connection to Binance for price updates
+const ws = new WebSocket("wss://stream.binance.com:9443/ws/solusdt@kline_1m");
+
+ws.onmessage = (event) => {
+  try {
+    const data = JSON.parse(event.data);
+    const open = parseFloat(data.k.o);
+    const close = parseFloat(data.k.c);
+    const high = parseFloat(data.k.h);
+    const low = parseFloat(data.k.l);
+
+    // Calculate average price (no rounding)
+    latestPrice = Math.trunc(((open + close + high + low) / 4) * 100) / 100;
+    console.log("Updated Price:", latestPrice);
+  } catch (error) {
+    console.error("Error parsing WebSocket data:", error);
+  }
+};
+
+// Broadcast balance and price updates to all WebSocket clients
+setInterval(async () => {
+  await fetchBalance(); // Refresh balance every minute
+  const data = JSON.stringify({ balance: latestBalance, price: latestPrice });
+  wss.clients.forEach(client => client.readyState === 1 && client.send(data));
+}, 2000); // Update every 60 seconds
+
+// Handle WebSocket connections from frontend
+wss.on("connection", (ws) => {
+  console.log("Client connected");
+
+  // Send the latest data immediately upon connection
+  ws.send(JSON.stringify({ balance: latestBalance, price: latestPrice }));
+
+  ws.on("close", () => console.log("Client disconnected"));
+});
