@@ -2,12 +2,12 @@ services:
   backend:
     container_name: solana-wallet-local-backend
     build: ./backend
-      #network_mode: "service:gluetun-mx"
+    network_mode: "service:gluetun-mx"
     environment:
       - NODE_ENV=production
-        #depends_on:
-        #gluetun-mx:
-        #condition: service_healthy
+    depends_on:
+      gluetun-mx:
+        condition: service_healthy
     restart: unless-stopped
 
   frontend:
