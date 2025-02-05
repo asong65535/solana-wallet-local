@@ -1,5 +1,5 @@
 import express from "express";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket as ws } from "ws"; // Import ws for Node.js WebSockets
 import cors from "cors";
 import { Connection, PublicKey, clusterApiUrl } from "@solana/web3.js";
 
@@ -29,12 +29,12 @@ async function fetchBalance() {
   }
 }
 
-// WebSocket connection to Binance for price updates
-const ws = new WebSocket("wss://stream.binance.com:9443/ws/solusdt@kline_1m");
+// WebSocket client connection to Binance (using `ws` package)
+const binanceWS = new ws("wss://stream.binance.com:9443/ws/solusdt@kline_1m");
 
-ws.onmessage = (event) => {
+binanceWS.on("message", (event) => {
   try {
-    const data = JSON.parse(event.data);
+    const data = JSON.parse(event);
     const open = parseFloat(data.k.o);
     const close = parseFloat(data.k.c);
     const high = parseFloat(data.k.h);
@@ -46,14 +46,14 @@ ws.onmessage = (event) => {
   } catch (error) {
     console.error("Error parsing WebSocket data:", error);
   }
-};
+});
 
 // Broadcast balance and price updates to all WebSocket clients
 setInterval(async () => {
   await fetchBalance(); // Refresh balance every minute
   const data = JSON.stringify({ balance: latestBalance, price: latestPrice });
   wss.clients.forEach(client => client.readyState === 1 && client.send(data));
-}, 2000); // Update every 60 seconds
+}, 5000); // Update every 60 seconds
 
 // Handle WebSocket connections from frontend
 wss.on("connection", (ws) => {
