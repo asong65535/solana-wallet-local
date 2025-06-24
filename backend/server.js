@@ -14,9 +14,12 @@ const wss = new WebSocketServer({ server });
 let latestPrice = null;
 let latestBalance = null;
 
+// Solana API Key
+const solanaKey = "";
+
 // Solana wallet connection
 const connection = new Connection(clusterApiUrl("mainnet-beta"), "confirmed");
-const publicKey = new PublicKey("GnmB9DGN28r38xQVBjDoJ8N5xaznAEL5dmZ9RVRjysCD");
+const publicKey = new PublicKey(solanaKey);
 
 // Function to fetch wallet balance
 async function fetchBalance() {
